@@ -1,0 +1,13 @@
+entrepreneur:
+  - company: 'Nike'
+    name: 'Philip Knight'
+    book: "Shoe Dog"
+
+executive:
+  - company: 'IBM'
+    name: 'Lou Gerstner'
+    book: "Who Says Elephants Can't Dance?"
+
+politician:
+  - name: 'Winston Churchill'
+    country: 'UK'

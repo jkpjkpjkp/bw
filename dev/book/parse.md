@@ -1,0 +1,1 @@
+parse a book into chapters, read the first paragraphs of each chapter, and estimate the age of the protagonist (author).
