@@ -1,214 +1,276 @@
 entrepreneur:
 - company: Nike
   name: Philip Knight
+  birth_year: 1938
   book: Shoe Dog
 - name: Sam Walton
+  birth_year: 1918
   book: 'Sam Walton: Made in America'
   company: Walmart
 - name: Richard Branson
+  birth_year: 1950
   book: Losing My Virginity
   company: Virgin Group
 - name: Lee Iacocca
+  birth_year: 1924
   book: 'Iacocca: An Autobiography'
   company: Chrysler
 - name: Howard Schultz
+  birth_year: 1953
   book: Pour Your Heart Into It
   company: Starbucks
 - name: Elon Musk
+  birth_year: 1971
   book: 'Elon Musk: Tesla, SpaceX, and the Quest for a Fantastic Future'
   company: Tesla, SpaceX
 - name: Steve Jobs
+  birth_year: 1955
   book: Steve Jobs
   company: Apple
 - name: Michael Dell
+  birth_year: 1965
   book: Direct from Dell
   company: Dell Technologies
 - name: Estée Lauder
+  birth_year: 1908
   book: 'Estée: A Success Story'
   company: Estée Lauder Companies
-- name: Warren Buffett
-  book: 'The Snowball: Warren Buffett and the Business of Life'  -- WRONG: authored by another
-  company: Berkshire Hathaway
+- name: Bill Gates
+  birth_year: 1955
+  book: 'Source Code: My Beginnings'
+  company: Microsoft
 executive:
 - company: IBM
   name: Lou Gerstner
+  birth_year: 1942
   book: Who Says Elephants Can't Dance?
 - name: Jack Welch
+  birth_year: 1935
   book: 'Jack: Straight from the Gut'
   company: General Electric
 - name: Andrew Grove
+  birth_year: 1936
   book: 'Swimming Across: A Memoir'
   company: Intel
 - name: Indra Nooyi
+  birth_year: 1955
   book: 'My Life in Full: Work, Family, and Our Future'
   company: PepsiCo
 - name: Carlos Ghosn
+  birth_year: 1954
   book: 'Shift: Inside Nissan''s Historic Revival'
   company: Nissan
-- name: Bill Gates
-  book: 'Source Code: My Beginnings'
-  company: Microsoft
 politician:
 - name: Winston Churchill
+  birth_year: 1874
   country: UK
 - name: Barack Obama
+  birth_year: 1961
   book: A Promised Land
   country: United States
 - name: Nelson Mandela
+  birth_year: 1918
   book: Long Walk to Freedom
   country: South Africa
 - name: Angela Merkel
+  birth_year: 1954
   book: 'Freiheit: Erinnerungen'
   country: Germany
 - name: Indira Gandhi
+  birth_year: 1917
   book: My Truth
   country: India
 - name: George W. Bush
+  birth_year: 1946
   book: Decision Points
   country: United States
 - name: Václav Havel
+  birth_year: 1936
   book: To the Castle and Back
   country: Czech Republic
 - name: Aung San Suu Kyi
+  birth_year: 1945
   book: Freedom from Fear
   country: Myanmar
 - name: Bill Clinton
+  birth_year: 1946
   book: My Life
   country: United States
 - name: Golda Meir
+  birth_year: 1898
   book: My Life
   country: Israel
 scientist:
 - name: Richard Feynman
+  birth_year: 1918
   book: Surely You're Joking, Mr. Feynman!
   field: Theoretical Physics
 - name: James D. Watson
+  birth_year: 1928
   book: The Double Helix
   field: Molecular Biology
 - name: Charles Darwin
+  birth_year: 1809
   book: The Autobiography of Charles Darwin
   field: Natural History
 - name: Albert Einstein
+  birth_year: 1879
   book: Autobiographical Notes
   field: Theoretical Physics
 - name: Carl Sagan
+  birth_year: 1934
   book: 'Billions & Billions: Thoughts on Life and Death at the Brink of the Millennium'
   field: Astronomy
 - name: Jane Goodall
+  birth_year: 1934
   book: 'Reason for Hope: A Spiritual Journey'
   field: Primatology
 - name: Alan Turing
+  birth_year: 1912
   book: 'Alan Turing: His Work and Impact'
   field: Computer Science
 - name: Stephen Hawking
+  birth_year: 1942
   book: My Brief History
   field: Theoretical Physics
 - name: G.H. Hardy
+  birth_year: 1877
   book: A Mathematician's Apology
   field: Mathematics
 - name: Srinivasa Ramanujan
+  birth_year: 1887
   book: The Lost Notebook and Other Unpublished Papers
   field: Mathematics
 athlete:
 - name: Muhammad Ali
+  birth_year: 1942
   book: 'The Greatest: My Own Story'
   country: United States
   field: Boxing
 - name: Andre Agassi
+  birth_year: 1970
   book: 'Open: An Autobiography'
   country: United States
   field: Tennis
 - name: Serena Williams
+  birth_year: 1981
   book: 'My Life: Queen of the Court'
   country: United States
   field: Tennis
 - name: Michael Phelps
+  birth_year: 1985
   book: 'No Limits: The Will to Succeed'
   country: United States
   field: Swimming
 - name: Cristiano Ronaldo
+  birth_year: 1985
   book: Moments
   country: Portugal
   field: Football / Soccer
 - name: Lionel Messi
+  birth_year: 1987
   book: Messi
   country: Argentina
   field: Football / Soccer
 - name: Usain Bolt
+  birth_year: 1986
   book: 'Faster Than Lightning: My Autobiography'
   country: Jamaica
   field: Track & Field
 - name: Earvin Johnson
+  birth_year: 1959
   book: My Life
   country: United States
   field: Basketball
 - name: Pelé
+  birth_year: 1940
   book: 'Pelé: The Autobiography'
   country: Brazil
   field: Football / Soccer
 - name: Tony Hawk
+  birth_year: 1968
   book: 'Hawk: Occupation: Skateboarder'
   country: United States
   field: Skateboarding
 artist:
 - name: Pablo Picasso
+  birth_year: 1881
   book: 'Picasso: A Retrospective'
   field: Visual Art
 - name: Salvador Dalí
+  birth_year: 1904
   book: The Secret Life of Salvador Dalí
   field: Surrealist Art
 - name: Frank Lloyd Wright
+  birth_year: 1867
   book: An Autobiography
   field: Architecture
 - name: Georgia O'Keeffe
+  birth_year: 1887
   book: Georgia O'Keeffe
   field: Visual Art
 - name: Andy Warhol
+  birth_year: 1928
   book: The Philosophy of Andy Warhol (From A to B and Back Again)
   field: Pop Art
 - name: David Hockney
+  birth_year: 1937
   book: David Hockney by David Hockney
   field: Visual Art
 - name: Louise Bourgeois
+  birth_year: 1911
   book: 'Destruction of the Father / Reconstruction of the Father: Writings and Interviews, 1923–1997'
   field: Sculpture
 - name: Anish Kapoor
+  birth_year: 1954
   book: Anish Kapoor
   field: Sculpture
 - name: Yoko Ono
+  birth_year: 1933
   book: Grapefruit
   field: Conceptual Art
 - name: Keith Haring
+  birth_year: 1958
   book: Keith Haring Journals
   field: Street Art
 military leader:
 - name: Ulysses S. Grant
+  birth_year: 1822
   book: Personal Memoirs of U. S. Grant
   country: United States
 - name: Dwight D. Eisenhower
+  birth_year: 1890
   book: Crusade in Europe
   country: United States
 - name: Erwin Rommel
+  birth_year: 1891
   book: The Rommel Papers
   country: Germany
 - name: Heinz Guderian
+  birth_year: 1888
   book: Panzer Leader
   country: Germany
 - name: William Tecumseh Sherman
+  birth_year: 1820
   book: Memoirs of General W. T. Sherman
   country: United States
 - name: Georgy Zhukov
+  birth_year: 1896
   book: Marshal Zhukov's Greatest Battles
   country: Soviet Union
 - name: Colin Powell
+  birth_year: 1937
   book: My American Journey
   country: United States
 - name: Norman Schwarzkopf
+  birth_year: 1934
   book: It Doesn't Take a Hero
   country: United States
 - name: Vo Nguyen Giap
+  birth_year: 1911
   book: 'Memoirs of War: The Central Highlands'
   country: Vietnam
 - name: Michael Rose
+  birth_year: 1940
   book: 'Fighting for Peace: Lessons from Bosnia'
   country: United Kingdom
