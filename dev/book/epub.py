@@ -88,10 +88,10 @@ def _get_container_rootfile(zf: zipfile.ZipFile) -> str:
     return rootfile.get("full-path", "")
 
 
-def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple[str, str]]]:
+def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple[str, str]], str | None]:
     """Parse the OPF file to get metadata and spine items.
 
-    Returns: (title, author, list of (id, href) for spine items)
+    Returns: (title, author, list of (id, href) for spine items, ncx_href)
     """
     opf_content = zf.read(opf_path).decode("utf-8")
     root = ET.fromstring(opf_content)
@@ -117,6 +117,7 @@ def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple
     # Build manifest id->href mapping
     manifest = root.find("opf:manifest", ns) or root.find("manifest")
     id_to_href: dict[str, str] = {}
+    ncx_href: str | None = None
     if manifest is not None:
         for item in manifest:
             item_id = item.get("id", "")
@@ -124,6 +125,8 @@ def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple
             media_type = item.get("media-type", "")
             if "html" in media_type or "xhtml" in media_type:
                 id_to_href[item_id] = href
+            elif "ncx" in media_type or href.endswith(".ncx"):
+                ncx_href = href
 
     # Get spine items in order
     spine = root.find("opf:spine", ns) or root.find("spine")
@@ -134,7 +137,47 @@ def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple
             if idref in id_to_href:
                 spine_items.append((idref, id_to_href[idref]))
 
-    return title, author, spine_items
+    return title, author, spine_items, ncx_href
+
+
+# Titles that indicate non-content chapters
+_NON_CONTENT_TITLES = {
+    "title page", "titlepage", "cover", "copyright", "dedication",
+    "acknowledgments", "acknowledgements", "notes", "index", "bibliography",
+    "references", "about the author", "also by", "praise for", "contents",
+    "table of contents", "photographs", "photo insert", "maps", "illustrations",
+}
+
+
+def _parse_ncx(zf: zipfile.ZipFile, ncx_path: str) -> dict[str, str]:
+    """Parse NCX file to get href -> title mapping."""
+    try:
+        ncx_content = zf.read(ncx_path).decode("utf-8")
+    except KeyError:
+        return {}
+
+    try:
+        root = ET.fromstring(ncx_content)
+    except ET.ParseError:
+        return {}
+
+    ns = {"ncx": "http://www.daisy.org/z3986/2005/ncx/"}
+    href_to_title: dict[str, str] = {}
+
+    for navpoint in root.findall(".//ncx:navPoint", ns):
+        label = navpoint.find("ncx:navLabel/ncx:text", ns)
+        content = navpoint.find("ncx:content", ns)
+        if label is not None and content is not None and label.text:
+            src = content.get("src", "").split("#")[0]  # Remove fragment
+            href_to_title[src] = label.text.strip()
+
+    return href_to_title
+
+
+def _is_content_chapter(title: str) -> bool:
+    """Check if a chapter title indicates actual content (not front/back matter)."""
+    title_lower = title.lower().strip()
+    return title_lower not in _NON_CONTENT_TITLES
 
 
 def _extract_chapter_title(html: str, fallback: str) -> str:
@@ -178,7 +221,16 @@ def load_epub(path: str | Path) -> Book:
         opf_path = _get_container_rootfile(zf)
         opf_dir = str(Path(opf_path).parent)
 
-        title, author, spine_items = _parse_opf(zf, opf_path)
+        title, author, spine_items, ncx_href = _parse_opf(zf, opf_path)
+
+        # Parse NCX for chapter titles
+        ncx_titles: dict[str, str] = {}
+        if ncx_href:
+            if opf_dir and opf_dir != ".":
+                ncx_full_path = f"{opf_dir}/{ncx_href}"
+            else:
+                ncx_full_path = ncx_href
+            ncx_titles = _parse_ncx(zf, ncx_full_path)
 
         chapters: list[Chapter] = []
         for i, (item_id, href) in enumerate(spine_items):
@@ -197,10 +249,16 @@ def load_epub(path: str | Path) -> Book:
                 continue
 
             text = _extract_text_from_html(content)
-            if not text or len(text) < 50:  # Skip very short/empty chapters
+            if not text or len(text) < 500:  # Skip very short/empty chapters
                 continue
 
-            chapter_title = _extract_chapter_title(content, f"Chapter {i + 1}")
+            # Get title from NCX first, then try HTML, then fallback
+            chapter_title = ncx_titles.get(href) or _extract_chapter_title(content, f"Chapter {i + 1}")
+
+            # Skip non-content chapters
+            if not _is_content_chapter(chapter_title):
+                continue
+
             chapters.append(Chapter(title=chapter_title, text=text))
 
         return Book(title=title or path.stem, author=author, chapters=chapters)

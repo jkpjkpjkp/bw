@@ -16,8 +16,16 @@ class ChapterAge:
     """Age estimate for a chapter."""
 
     chapter_title: str
-    age_estimate: int | None
+    age_min: int | None
+    age_max: int | None
     reasoning: str
+
+    @property
+    def age_range(self) -> tuple[int, int] | None:
+        """Get age range as tuple, or None if unknown."""
+        if self.age_min is not None and self.age_max is not None:
+            return (self.age_min, self.age_max)
+        return None
 
 
 @dataclass
@@ -30,14 +38,20 @@ class BookAgeProfile:
     chapter_ages: list[ChapterAge]
 
     @property
-    def ages(self) -> list[int]:
-        """Get list of all estimated ages (non-None)."""
-        return [ca.age_estimate for ca in self.chapter_ages if ca.age_estimate is not None]
+    def all_ages(self) -> list[int]:
+        """Get list of all age bounds (min and max) across chapters."""
+        ages = []
+        for ca in self.chapter_ages:
+            if ca.age_min is not None:
+                ages.append(ca.age_min)
+            if ca.age_max is not None:
+                ages.append(ca.age_max)
+        return ages
 
     @property
     def age_range(self) -> tuple[int, int] | None:
         """Get (min, max) age range covered by the book."""
-        ages = self.ages
+        ages = self.all_ages
         if not ages:
             return None
         return min(ages), max(ages)
@@ -60,12 +74,12 @@ def estimate_chapter_age(
         birth_year: The author's birth year (if known).
 
     Returns:
-        ChapterAge with estimated age and reasoning.
+        ChapterAge with estimated age range and reasoning.
     """
     birth_info = f"The author was born in {birth_year}." if birth_year else ""
 
     prompt = f"""Based on the following excerpt from an autobiography/memoir by {author_name},
-estimate the approximate age of the author at the time of the events being described.
+estimate the age range of the author during the events being described.
 {birth_info}
 
 Excerpt:
@@ -74,8 +88,13 @@ Excerpt:
 ---
 
 Respond in this exact format:
-AGE: <number or "unknown">
+AGE_MIN: <number>
+AGE_MAX: <number>
 REASONING: <brief explanation of clues used>
+
+The events in a chapter may span multiple years, so provide a range.
+If only one age is clear, use the same value for both min and max.
+Always provide your best estimate as a number, even if uncertain.
 
 Look for clues like:
 - Direct age mentions ("when I was 12...")
@@ -84,26 +103,33 @@ Look for clues like:
 - Historical events with known dates (combined with birth year to compute age)
 - Family context (having children, grandchildren)"""
 
-    system_prompt = "You are analyzing autobiographical text to estimate the author's age. Be precise when possible, make reasonable estimates when clues are indirect."
+    system_prompt = "You are analyzing autobiographical text to estimate the author's age range. Be precise when possible, provide ranges when events span time."
 
     response = query(prompt, system_prompt)
 
     # Parse response
-    age_estimate = None
+    age_min = None
+    age_max = None
     reasoning = ""
 
     lines = response.strip().split("\n")
     for line in lines:
-        if line.startswith("AGE:"):
-            age_str = line.replace("AGE:", "").strip()
+        if line.startswith("AGE_MIN:"):
+            age_str = line.replace("AGE_MIN:", "").strip()
             try:
-                age_estimate = int(age_str)
+                age_min = int(age_str)
             except ValueError:
-                age_estimate = None
+                age_min = None
+        elif line.startswith("AGE_MAX:"):
+            age_str = line.replace("AGE_MAX:", "").strip()
+            try:
+                age_max = int(age_str)
+            except ValueError:
+                age_max = None
         elif line.startswith("REASONING:"):
             reasoning = line.replace("REASONING:", "").strip()
 
-    return ChapterAge(chapter_title="", age_estimate=age_estimate, reasoning=reasoning)
+    return ChapterAge(chapter_title="", age_min=age_min, age_max=age_max, reasoning=reasoning)
 
 
 def analyze_book(
@@ -177,7 +203,10 @@ if __name__ == "__main__":
     print(f"Author: {profile.author}")
     print(f"\nChapter age estimates:")
     for ca in profile.chapter_ages:
-        age_str = str(ca.age_estimate) if ca.age_estimate else "unknown"
+        if ca.age_range:
+            age_str = f"{ca.age_min}-{ca.age_max}" if ca.age_min != ca.age_max else str(ca.age_min)
+        else:
+            age_str = "unknown"
         print(f"  - {ca.chapter_title}: age ~{age_str}")
         print(f"    {ca.reasoning}")
 
