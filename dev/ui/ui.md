@@ -1,4 +1,4 @@
-write the skeleton of a tinder clone, using react.
+write the skeleton of a Tinder clone, using react.
 
 the implementation is minimal, without user control and do not need communicating with a remote server. 
 
