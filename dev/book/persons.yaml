@@ -27,7 +27,7 @@ entrepreneur:
   book: 'Estée: A Success Story'
   company: Estée Lauder Companies
 - name: Warren Buffett
-  book: 'The Snowball: Warren Buffett and the Business of Life'
+  book: 'The Snowball: Warren Buffett and the Business of Life'  -- WRONG: authored by another
   company: Berkshire Hathaway
 executive:
 - company: IBM
@@ -138,7 +138,7 @@ athlete:
   book: 'Faster Than Lightning: My Autobiography'
   country: Jamaica
   field: Track & Field
-- name: Magic Johnson
+- name: Earvin Johnson
   book: My Life
   country: United States
   field: Basketball
