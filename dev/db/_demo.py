@@ -1,3 +1,5 @@
+"""surreal db official demo"""
+
 # Import the Surreal class
 from surrealdb import Surreal
 
