@@ -38,7 +38,7 @@ def populate_persons_yaml(categories: list[str] | None = None) -> None:
     if categories is None:
         categories = [
             "entrepreneurs",
-            "company executives",
+            "executives/CEOs",
             "scientists",
             "athletes",
             "artists",

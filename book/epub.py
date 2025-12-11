@@ -50,29 +50,18 @@ def _extract_text_from_html(html: str) -> str:
 
 @dataclass
 class Chapter:
-    """A chapter in a book."""
-
     title: str
     text: str
-
-    @property
-    def first_paragraphs(self, n: int = 3) -> str:
-        """Get the first n paragraphs of the chapter."""
-        paragraphs = [p.strip() for p in self.text.split("\n\n") if p.strip()]
-        return "\n\n".join(paragraphs[:n])
 
 
 @dataclass
 class Book:
-    """A book consisting of chapters."""
-
     title: str
     author: str
     chapters: list[Chapter] = field(default_factory=list)
 
     def __iter__(self):
         return iter(self.chapters)
-
     def __len__(self):
         return len(self.chapters)
 
@@ -262,3 +251,62 @@ def load_epub(path: str | Path) -> Book:
             chapters.append(Chapter(title=chapter_title, text=text))
 
         return Book(title=title or path.stem, author=author, chapters=chapters)
+
+
+def store_book(
+    book: Book,
+    db_url: str = "ws://localhost:8000/rpc",
+    namespace: str = "bw",
+    database: str = "books",
+) -> str:
+    """Store book structure into SurrealDB.
+
+    Args:
+        book: The Book object to store.
+        db_url: SurrealDB connection URL.
+        namespace: SurrealDB namespace.
+        database: SurrealDB database name.
+
+    Returns:
+        The record ID of the created book.
+    """
+    from surrealdb import Surreal
+
+    with Surreal(db_url) as db:
+        db.signin({"username": "root", "password": "root"})
+        db.use(namespace, database)
+
+        # Create book record first (without chapters list)
+        book_record = db.create(
+            "book",
+            {
+                "title": book.title,
+                "author": book.author,
+                "chapter_count": len(book.chapters),
+            },
+        )
+        book_id = book_record[0]["id"]  # type: ignore[index]
+
+        # Create chapter records linked to book
+        chapter_ids = []
+        for i, chapter in enumerate(book.chapters):
+            chapter_record = db.create(
+                "chapter",
+                {
+                    "book": book_id,
+                    "index": i,
+                    "title": chapter.title,
+                    "text": chapter.text,
+                },
+            )
+            chapter_ids.append(chapter_record[0]["id"])  # type: ignore[index]
+
+        # Update book with list of chapter foreign keys
+        db.update(book_id, {
+            "title": book.title,
+            "author": book.author,
+            "chapter_count": len(book.chapters),
+            "chapters": chapter_ids,
+        })
+
+        return book_id
