@@ -1,0 +1,1 @@
+'search' is querying kimi k2, whose api key is in .secret/moonshot-api-key.txt

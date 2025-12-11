@@ -13,48 +13,18 @@ from dev.utils import query
 
 @dataclass
 class ChapterAge:
-    """Age estimate for a chapter."""
-
     chapter_title: str
     age_min: int | None
     age_max: int | None
     reasoning: str
 
-    @property
-    def age_range(self) -> tuple[int, int] | None:
-        """Get age range as tuple, or None if unknown."""
-        if self.age_min is not None and self.age_max is not None:
-            return (self.age_min, self.age_max)
-        return None
-
 
 @dataclass
 class BookAgeProfile:
-    """Age profile for an entire book."""
-
     book_title: str
     author: str
     birth_year: int | None
     chapter_ages: list[ChapterAge]
-
-    @property
-    def all_ages(self) -> list[int]:
-        """Get list of all age bounds (min and max) across chapters."""
-        ages = []
-        for ca in self.chapter_ages:
-            if ca.age_min is not None:
-                ages.append(ca.age_min)
-            if ca.age_max is not None:
-                ages.append(ca.age_max)
-        return ages
-
-    @property
-    def age_range(self) -> tuple[int, int] | None:
-        """Get (min, max) age range covered by the book."""
-        ages = self.all_ages
-        if not ages:
-            return None
-        return min(ages), max(ages)
 
 
 def _get_first_paragraphs(text: str, n: int = 3) -> str:
@@ -100,10 +70,11 @@ Look for clues like:
 - Direct age mentions ("when I was 12...")
 - Life stages (childhood, college, retirement)
 - Career milestones (first job, becoming CEO)
+- Year mentions (e.g., "in 2010...")
 - Historical events with known dates (combined with birth year to compute age)
 - Family context (having children, grandchildren)"""
 
-    system_prompt = "You are analyzing autobiographical text to estimate the author's age range. Be precise when possible, provide ranges when events span time."
+    system_prompt = "You are analyzing autobiographical text to estimate the protagonist's age range."
 
     response = query(prompt, system_prompt)
 
@@ -133,7 +104,7 @@ Look for clues like:
 
 
 def analyze_book(
-    book: Book, birth_year: int | None = None, max_chapters: int | None = None
+    book: Book, birth_year: int | None = None
 ) -> BookAgeProfile:
     """Analyze a book and estimate ages for each chapter.
 
@@ -146,11 +117,10 @@ def analyze_book(
         BookAgeProfile with age estimates for each chapter.
     """
     chapter_ages: list[ChapterAge] = []
-    chapters_to_analyze = book.chapters[:max_chapters] if max_chapters else book.chapters
 
-    for chapter in chapters_to_analyze:
+    for chapter in book.chapters:
         first_paragraphs = _get_first_paragraphs(chapter.text)
-        if len(first_paragraphs) < 100:
+        if len(first_paragraphs) < 70:
             continue
 
         age_result = estimate_chapter_age(first_paragraphs, book.author, birth_year)
@@ -165,50 +135,30 @@ def analyze_book(
     )
 
 
-def analyze_epub(
-    path: str | Path, birth_year: int | None = None, max_chapters: int | None = None
-) -> BookAgeProfile:
-    """Load an EPUB and analyze it for age estimates.
-
-    Args:
-        path: Path to the EPUB file.
-        birth_year: The author's birth year (for age computation).
-        max_chapters: Maximum number of chapters to analyze.
-
-    Returns:
-        BookAgeProfile with age estimates.
-    """
-    book = load_epub(path)
-    return analyze_book(book, birth_year, max_chapters)
-
-
 if __name__ == "__main__":
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python -m dev.book.parse <epub_path> [birth_year] [max_chapters]")
+        print("Usage: python -m dev.book.parse <epub_path> [birth_year]")
         sys.exit(1)
 
     epub_path = sys.argv[1]
     birth_year = int(sys.argv[2]) if len(sys.argv) > 2 else None
-    max_chapters = int(sys.argv[3]) if len(sys.argv) > 3 else 5
 
     print(f"Analyzing: {epub_path}")
     if birth_year:
         print(f"Birth year: {birth_year}")
-
-    profile = analyze_epub(epub_path, birth_year, max_chapters)
+        
+    book = load_epub(path)
+    profile = analyze_book(book, birth_year)
 
     print(f"\nBook: {profile.book_title}")
     print(f"Author: {profile.author}")
     print(f"\nChapter age estimates:")
     for ca in profile.chapter_ages:
-        if ca.age_range:
+        if ca.age_min is not None and ca.age_max is not None:
             age_str = f"{ca.age_min}-{ca.age_max}" if ca.age_min != ca.age_max else str(ca.age_min)
         else:
             age_str = "unknown"
         print(f"  - {ca.chapter_title}: age ~{age_str}")
         print(f"    {ca.reasoning}")
-
-    if profile.age_range:
-        print(f"\nAge range covered: {profile.age_range[0]} - {profile.age_range[1]}")
