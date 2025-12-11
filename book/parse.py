@@ -7,7 +7,7 @@ at the time of events described.
 from dataclasses import dataclass
 from pathlib import Path
 
-from dev.book.epub import Book, load_epub
+from .epub import Book, load_epub
 from dev.utils import query
 
 

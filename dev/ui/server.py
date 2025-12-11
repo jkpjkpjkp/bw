@@ -1,14 +1,14 @@
 import json
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 import yaml
 
-from dev.book import load_epub, analyze_book
+from book import load_epub, analyze_book
 
 
 def load_persons() -> list[dict]:
-    with open('./dev/book/persons.yaml') as f:
+    with open('./book/persons.yaml') as f:
         data = yaml.safe_load(f)
 
     persons = []
