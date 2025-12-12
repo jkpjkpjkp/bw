@@ -22,10 +22,8 @@ class BookAgeProfile:
     chapter_ages: list[ChapterAge]
 
 
-def _get_first_paragraphs(text: str, n: int = 3) -> str:
-    """Get the first n paragraphs of text."""
-    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
-    return "\n\n".join(paragraphs[:n])
+def _get_paragraphs(text: str) -> str:
+    return [p.strip() for p in text.split("\n\n") if p.strip()]
 
 
 def estimate_chapter_age(
@@ -96,11 +94,13 @@ def analyze_book(
     chapter_ages: list[ChapterAge] = []
 
     for chapter in book.chapters:
-        first_paragraphs = _get_first_paragraphs(chapter.text)
-        if len(first_paragraphs) < 70:
+        paras = _get_paragraphs(chapter.text)
+        paras = paras if len(paras) <= 6 else paras[:3] + ['...'] + paras[-3:]
+        paras = '\n\n'.join(paras)
+        if len(paras) < 120:
             continue
 
-        age_result = estimate_chapter_age(first_paragraphs, book.author, birth_year)
+        age_result = estimate_chapter_age(paras, book.author, birth_year)
         age_result.chapter_title = chapter.title
         chapter_ages.append(age_result)
 

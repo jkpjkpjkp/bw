@@ -1,4 +1,5 @@
 """most notable persons in a group, and books them by authored."""
+import random
 import yaml
 from pathlib import Path
 
@@ -6,9 +7,28 @@ from dev.utils import query
 
 
 def search_distinguished_persons(category: str, count: int = 10) -> list[dict]:
+    # Load existing persons to avoid duplicates
+    existing_sample = ""
+    persons_yaml_path = Path("./book/persons.yaml").absolute()
+    if persons_yaml_path.exists():
+        try:
+            existing_data = yaml.safe_load(persons_yaml_path.read_text())
+            # Normalize category name for lookup
+            key = category.split("/")[0].rstrip("s")
+
+            if key in existing_data and existing_data[key]:
+                # Randomly sample up to 5 existing persons
+                sample_size = min(5, len(existing_data[key]))
+                sampled = random.sample(existing_data[key], sample_size)
+                names = [p.get("name") for p in sampled if p.get("name")]
+                if names:
+                    existing_sample = f"\n\nWe already have these {category}, please suggest OTHER people:\n" + "\n".join(f"- {name}" for name in names)
+        except (yaml.YAMLError, KeyError):
+            pass
+
     prompt = f"""List {count} extremely distinguished {category} who have published autobiographic book(s).
 For each person, provide:
-- name: 
+- name:
 - book: title of their most notable autobiography or memoir(s)
 - identifying info (company, country, field, etc.)
 
@@ -17,7 +37,7 @@ Return ONLY valid YAML format like this:
   book: "Book Title"
   company: "Company Name"  # or country, field, etc. as appropriate
 
-Do not include biographies written by others. only autobiographies (co-)authored or deeply involved by them. """
+Do not include biographies written by others. only autobiographies (co-)authored or deeply involved by them.{existing_sample}"""
     system_prompt = "You are a knowledgeable assistant that provides accurate information about notable figures and their autobiographical works. Return only valid YAML."
 
     response = query(prompt, system_prompt).strip()
