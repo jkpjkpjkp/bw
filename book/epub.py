@@ -5,10 +5,11 @@ EPUBs are ZIP files containing XHTML content organized by a manifest.
 
 import zipfile
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field
 from pathlib import Path
 from html.parser import HTMLParser
 import re
+
+from .common import Book, Chapter, is_content_chapter
 
 
 class _TextExtractor(HTMLParser):
@@ -46,24 +47,6 @@ def _extract_text_from_html(html: str) -> str:
     parser = _TextExtractor()
     parser.feed(html)
     return parser.get_text()
-
-
-@dataclass
-class Chapter:
-    title: str
-    text: str
-
-
-@dataclass
-class Book:
-    title: str
-    author: str
-    chapters: list[Chapter] = field(default_factory=list)
-
-    def __iter__(self):
-        return iter(self.chapters)
-    def __len__(self):
-        return len(self.chapters)
 
 
 def _get_container_rootfile(zf: zipfile.ZipFile) -> str:
@@ -129,15 +112,6 @@ def _parse_opf(zf: zipfile.ZipFile, opf_path: str) -> tuple[str, str, list[tuple
     return title, author, spine_items, ncx_href
 
 
-# Titles that indicate non-content chapters
-_NON_CONTENT_TITLES = {
-    "title page", "titlepage", "cover", "copyright", "dedication",
-    "acknowledgments", "acknowledgements", "notes", "index", "bibliography",
-    "references", "about the author", "also by", "praise for", "contents",
-    "table of contents", "photographs", "photo insert", "maps", "illustrations",
-}
-
-
 def _parse_ncx(zf: zipfile.ZipFile, ncx_path: str) -> dict[str, str]:
     """Parse NCX file to get href -> title mapping."""
     try:
@@ -161,12 +135,6 @@ def _parse_ncx(zf: zipfile.ZipFile, ncx_path: str) -> dict[str, str]:
             href_to_title[src] = label.text.strip()
 
     return href_to_title
-
-
-def _is_content_chapter(title: str) -> bool:
-    """Check if a chapter title indicates actual content (not front/back matter)."""
-    title_lower = title.lower().strip()
-    return title_lower not in _NON_CONTENT_TITLES
 
 
 def _extract_chapter_title(html: str, fallback: str) -> str:
@@ -245,68 +213,9 @@ def load_epub(path: str | Path) -> Book:
             chapter_title = ncx_titles.get(href) or _extract_chapter_title(content, f"Chapter {i + 1}")
 
             # Skip non-content chapters
-            if not _is_content_chapter(chapter_title):
+            if not is_content_chapter(chapter_title):
                 continue
 
             chapters.append(Chapter(title=chapter_title, text=text))
 
         return Book(title=title or path.stem, author=author, chapters=chapters)
-
-
-def store_book(
-    book: Book,
-    db_url: str = "ws://localhost:8000/rpc",
-    namespace: str = "bw",
-    database: str = "books",
-) -> str:
-    """Store book structure into SurrealDB.
-
-    Args:
-        book: The Book object to store.
-        db_url: SurrealDB connection URL.
-        namespace: SurrealDB namespace.
-        database: SurrealDB database name.
-
-    Returns:
-        The record ID of the created book.
-    """
-    from surrealdb import Surreal
-
-    with Surreal(db_url) as db:
-        db.signin({"username": "root", "password": "root"})
-        db.use(namespace, database)
-
-        # Create book record first (without chapters list)
-        book_record = db.create(
-            "book",
-            {
-                "title": book.title,
-                "author": book.author,
-                "chapter_count": len(book.chapters),
-            },
-        )
-        book_id = book_record[0]["id"]  # type: ignore[index]
-
-        # Create chapter records linked to book
-        chapter_ids = []
-        for i, chapter in enumerate(book.chapters):
-            chapter_record = db.create(
-                "chapter",
-                {
-                    "book": book_id,
-                    "index": i,
-                    "title": chapter.title,
-                    "text": chapter.text,
-                },
-            )
-            chapter_ids.append(chapter_record[0]["id"])  # type: ignore[index]
-
-        # Update book with list of chapter foreign keys
-        db.update(book_id, {
-            "title": book.title,
-            "author": book.author,
-            "chapter_count": len(book.chapters),
-            "chapters": chapter_ids,
-        })
-
-        return book_id

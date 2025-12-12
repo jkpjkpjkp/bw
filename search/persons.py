@@ -1,4 +1,4 @@
-"""most notable persons in a specimen, and books them by authored."""
+"""most notable persons in a group, and books them by authored."""
 import yaml
 from pathlib import Path
 
@@ -78,6 +78,5 @@ def populate_persons_yaml(categories: list[str] | None = None) -> None:
     _PERSONS_YAML_PATH.write_text(yaml.dump(existing, default_flow_style=False, allow_unicode=True, sort_keys=False))
     print(f"Updated {_PERSONS_YAML_PATH}")
 
-
-if __name__ == "__main__":
-    populate_persons_yaml()
+if __name__ == '__main__':
+    populate_persons_yaml(['programmers/computer engineers'])

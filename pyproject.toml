@@ -9,5 +9,4 @@ dependencies = [
     "openai>=2.9.0",
     "pdfminer-six>=20251107",
     "pyyaml>=6.0.3",
-    "surrealdb>=1.0.7",
 ]

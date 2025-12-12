@@ -51,7 +51,6 @@ class UIHandler(SimpleHTTPRequestHandler):
         if parsed.path == "/api/persons":
             self.send_json(load_persons())
         elif parsed.path.startswith("/api/book/"):
-            # Extract person index from path
             try:
                 person_idx = int(parsed.path.split("/")[-1])
                 persons = load_persons()
@@ -80,12 +79,8 @@ class UIHandler(SimpleHTTPRequestHandler):
                     self.send_json({"error": "Person not found"}, 404)
             except (ValueError, IndexError):
                 self.send_json({"error": "Invalid request"}, 400)
-        else:
-            # Serve static files
-            super().do_GET()
 
     def send_json(self, data: dict | list, status: int = 200):
-        """Send JSON response."""
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -94,8 +89,6 @@ class UIHandler(SimpleHTTPRequestHandler):
 
 
 def run_server(port: int = 8080):
-    """Run the UI server."""
-    # Ensure static directory exists
     static_dir = Path(__file__).parent / "static"
     static_dir.mkdir(exist_ok=True)
 
