@@ -40,10 +40,7 @@ def populate_persons_yaml(categories: list[str] | None = None) -> None:
             "entrepreneurs",
             "executives/CEOs",
             "scientists",
-            "athletes",
-            "artists",
             "engineers",
-            "political or military leaders",
         ]
 
     existing = yaml.safe_load(_PERSONS_YAML_PATH.read_text())

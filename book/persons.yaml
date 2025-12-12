@@ -77,18 +77,10 @@ scientist:
   birth_year: 1934
   book: 'Reason for Hope: A Spiritual Journey'
   field: Primatology
-- name: Alan Turing
-  birth_year: 1912
-  book: 'Alan Turing: His Work and Impact'
-  field: Computer Science
 - name: Stephen Hawking
   birth_year: 1942
   book: My Brief History
   field: Theoretical Physics
-- name: G.H. Hardy
-  birth_year: 1877
-  book: A Mathematician's Apology
-  field: Mathematics
 - name: Srinivasa Ramanujan
   birth_year: 1887
   book: The Lost Notebook and Other Unpublished Papers
