@@ -1,9 +1,4 @@
-"""Parse books into chapters and estimate protagonist age.
-
-Uses LLM to analyze chapter content and estimate the author's age
-at the time of events described.
-"""
-
+"""Estimate protagonist's age in each chapter."""
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -34,22 +29,11 @@ def _get_first_paragraphs(text: str, n: int = 3) -> str:
 
 
 def estimate_chapter_age(
-    chapter_text: str, author_name: str, birth_year: int | None
+    chapter_text: str, name: str, birth_year: int | None
 ) -> ChapterAge:
-    """Estimate the author's age during the events described in a chapter.
-
-    Args:
-        chapter_text: The first few paragraphs of the chapter.
-        author_name: The name of the author/protagonist.
-        birth_year: The author's birth year (if known).
-
-    Returns:
-        ChapterAge with estimated age range and reasoning.
-    """
-    birth_info = f"The author was born in {birth_year}." if birth_year else ""
-
-    prompt = f"""Based on the following excerpt from an autobiography/memoir by {author_name},
-estimate the age range of the author during the events being described.
+    birth_info = f"The main character was born in {birth_year}." if birth_year else ""
+    prompt = f"""Based on the following excerpt from an autobiography/memoir by {name},
+estimate the age range of the main character during the events being described.
 {birth_info}
 
 Excerpt:
@@ -73,30 +57,23 @@ Look for clues like:
 - Year mentions (e.g., "in 2010...")
 - Historical events with known dates (combined with birth year to compute age)
 - Family context (having children, grandchildren)"""
-
     system_prompt = "You are analyzing autobiographical text to estimate the protagonist's age range."
 
     response = query(prompt, system_prompt)
+    lines = response.strip().split("\n")
 
-    # Parse response
     age_min = None
     age_max = None
     reasoning = ""
-
-    lines = response.strip().split("\n")
     for line in lines:
         if line.startswith("AGE_MIN:"):
             age_str = line.replace("AGE_MIN:", "").strip()
             try:
                 age_min = int(age_str)
-            except ValueError:
-                age_min = None
         elif line.startswith("AGE_MAX:"):
             age_str = line.replace("AGE_MAX:", "").strip()
             try:
                 age_max = int(age_str)
-            except ValueError:
-                age_max = None
         elif line.startswith("REASONING:"):
             reasoning = line.replace("REASONING:", "").strip()
 
@@ -146,9 +123,7 @@ if __name__ == "__main__":
     birth_year = int(sys.argv[2]) if len(sys.argv) > 2 else None
 
     print(f"Analyzing: {epub_path}")
-    if birth_year:
-        print(f"Birth year: {birth_year}")
-        
+    
     book = load_epub(path)
     profile = analyze_book(book, birth_year)
 

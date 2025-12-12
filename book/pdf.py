@@ -4,13 +4,11 @@ PDFs don't have native chapter structure, so we use heuristics:
 - Detect chapter headings by font size and text patterns
 - Group pages into chapters based on detected headings
 """
-
 import re
 from pathlib import Path
-
 import pdfplumber
 
-from .common import Book, Chapter, is_content_chapter
+from ._utils import Book, Chapter, is_content_chapter
 
 
 # Patterns that suggest chapter headings

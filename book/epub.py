@@ -9,7 +9,7 @@ from pathlib import Path
 from html.parser import HTMLParser
 import re
 
-from .common import Book, Chapter, is_content_chapter
+from ._utils import Book, Chapter, is_content_chapter
 
 
 class _TextExtractor(HTMLParser):

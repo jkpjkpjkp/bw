@@ -2,6 +2,21 @@ import subprocess
 import json
 import os
 from pathlib import Path
+from torrentool.torrent import Torrent
+
+def parse_torrent_file(torrent_file):
+    """Parse a torrent file and display its contents"""
+    torrent = Torrent.from_file(torrent_file)
+
+    print(f'Torrent Name: {torrent.name}')
+
+    if torrent.files:
+        for idx, file_info in enumerate(torrent.files, 1):
+            path = file_info[0]
+            size = file_info[1]
+            print(f'{idx}. {path} ({size} bytes)')
+    else:
+        print(f'1. {torrent.name} ({torrent.total_size} bytes)')
 
 def download_and_parse_torrents(json_file, limit=None):
     """
@@ -20,16 +35,14 @@ def download_and_parse_torrents(json_file, limit=None):
         torrents = torrents[:limit]
 
     # Create a temp directory for downloads
-    download_dir = Path('temp_torrents')
+    download_dir = Path('.temp_torrents')
     download_dir.mkdir(exist_ok=True)
 
     for idx, torrent_data in enumerate(torrents, 1):
         url = torrent_data['url']
         display_name = torrent_data['display_name']
 
-        print(f"\n{'='*80}")
         print(f"[{idx}/{len(torrents)}] {display_name}")
-        print(f"{'='*80}")
 
         # Download the torrent file
         torrent_file = download_dir / display_name
@@ -41,15 +54,8 @@ def download_and_parse_torrents(json_file, limit=None):
                 check=True
             )
 
-            # Parse the torrent file using parse.js
-            result = subprocess.run(
-                ['node', 'parse.js', str(torrent_file)],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-
-            print(result.stdout)
+            # Parse the torrent file using Python
+            parse_torrent_file(str(torrent_file))
 
             # Clean up the downloaded file
             torrent_file.unlink()
@@ -67,7 +73,7 @@ if __name__ == '__main__':
     import sys
 
     # Get arguments
-    json_file = sys.argv[1] if len(sys.argv) > 1 else '../download/.anna.json'
+    json_file = sys.argv[1] if len(sys.argv) > 1 else 'dev/download/.anna.json'
     limit = int(sys.argv[2]) if len(sys.argv) > 2 else 10
 
     print(f"Processing torrents from: {json_file}")
