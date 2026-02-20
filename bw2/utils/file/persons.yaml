@@ -1,0 +1,87 @@
+entrepreneur:
+- company: Nike
+  name: Philip Knight
+  birth_year: 1938
+  book: Shoe Dog
+- name: Sam Walton
+  birth_year: 1918
+  book: 'Sam Walton: Made in America'
+  company: Walmart
+- name: Richard Branson
+  birth_year: 1950
+  book: Losing My Virginity
+  company: Virgin Group
+- name: Lee Iacocca
+  birth_year: 1924
+  book: 'Iacocca: An Autobiography'
+  company: Chrysler
+- name: Howard Schultz
+  birth_year: 1953
+  book: Pour Your Heart Into It
+  company: Starbucks
+- name: Elon Musk
+  birth_year: 1971
+  book: 'Elon Musk: Tesla, SpaceX, and the Quest for a Fantastic Future'
+  company: Tesla, SpaceX
+- name: Steve Jobs
+  birth_year: 1955
+  book: Steve Jobs
+  company: Apple
+- name: Michael Dell
+  birth_year: 1965
+  book: Direct from Dell
+  company: Dell Technologies
+- name: Bill Gates
+  birth_year: 1955
+  book: 'Source Code: My Beginnings'
+  company: Microsoft
+executive:
+- company: IBM
+  name: Lou Gerstner
+  birth_year: 1942
+  book: Who Says Elephants Can't Dance?
+- name: Jack Welch
+  birth_year: 1935
+  book: 'Jack: Straight from the Gut'
+  company: General Electric
+- name: Andrew Grove
+  birth_year: 1936
+  book: 'Swimming Across: A Memoir'
+  company: Intel
+- name: Carlos Ghosn
+  birth_year: 1954
+  book: 'Shift: Inside Nissan''s Historic Revival'
+  company: Nissan
+scientist:
+- name: Richard Feynman
+  birth_year: 1918
+  book: Surely You're Joking, Mr. Feynman!
+  field: Theoretical Physics
+- name: James D. Watson
+  birth_year: 1928
+  book: The Double Helix
+  field: Molecular Biology
+- name: Charles Darwin
+  birth_year: 1809
+  book: The Autobiography of Charles Darwin
+  field: Natural History
+- name: Albert Einstein
+  birth_year: 1879
+  book: Autobiographical Notes
+  field: Theoretical Physics
+- name: Carl Sagan
+  birth_year: 1934
+  book: 'Billions & Billions: Thoughts on Life and Death at the Brink of the Millennium'
+  field: Astronomy
+- name: Jane Goodall
+  birth_year: 1934
+  book: 'Reason for Hope: A Spiritual Journey'
+  field: Primatology
+- name: Stephen Hawking
+  birth_year: 1942
+  book: My Brief History
+  field: Theoretical Physics
+- name: Srinivasa Ramanujan
+  birth_year: 1887
+  book: The Lost Notebook and Other Unpublished Papers
+  field: Mathematics
